@@ -231,7 +231,9 @@ namespace detail {
 template <typename T> struct sse_mask_intrinsics;
 
 template <> struct sse_mask_intrinsics<float> {
-  static __m128 broadcast(const bool v) noexcept { return _mm_cmpeq_ps(_mm_set1_ps(v), _mm_set1_ps(true)); }
+  static __m128 broadcast(const bool v) noexcept {
+    return _mm_cmpeq_ps(_mm_cvtepi32_ps(_mm_set1_epi32(v)), _mm_cvtepi32_ps(_mm_set1_epi32(true)));
+  }
 
   static __m128 init(const bool w, const bool x, const bool y, const bool z) noexcept {
     return _mm_cmpeq_ps(_mm_set_ps(z, y, x, w), _mm_set1_ps(true));
