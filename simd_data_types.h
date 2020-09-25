@@ -15,14 +15,14 @@ struct vector_aligned_tag {};
 constexpr element_aligned_tag element_aligned{};
 constexpr vector_aligned_tag vector_aligned{};
 
-template <class T> struct is_abi_tag : std::integral_constant<bool, false> {};
-template <class T> constexpr bool is_abi_tag_v{is_abi_tag<T>::value};
+template <typename T> struct is_abi_tag : std::integral_constant<bool, false> {};
+template <typename T> constexpr bool is_abi_tag_v{is_abi_tag<T>::value};
 
-template <class T> struct is_simd : std::integral_constant<bool, false> {};
-template <class T> constexpr bool is_simd_v{is_simd<T>::value};
+template <typename T> struct is_simd : std::integral_constant<bool, false> {};
+template <typename T> constexpr bool is_simd_v{is_simd<T>::value};
 
-template <class T> struct is_simd_mask : std::integral_constant<bool, false> {};
-template <class T> constexpr bool is_simd_mask_v{is_simd_mask<T>::value};
+template <typename T> struct is_simd_mask : std::integral_constant<bool, false> {};
+template <typename T> constexpr bool is_simd_mask_v{is_simd_mask<T>::value};
 
 template <typename T> struct is_simd_flag_type : std::integral_constant<bool, false> {};
 template <> struct is_simd_flag_type<element_aligned_tag> : std::integral_constant<bool, true> {};

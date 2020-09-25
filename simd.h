@@ -3,7 +3,7 @@
 #ifndef SIMD_H
 #define SIMD_H
 
-#if 0 // defined(__SSE4_2__) && defined(__linux__)
+#if defined(__SSE4_2__) && defined(__linux__)
 #include "simd_sse_backend.h"
 #else
 #include "simd_default_backend.h"
