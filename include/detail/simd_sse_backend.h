@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef SIMD_SSE_BACKEND_H
-#define SIMD_SSE_BACKEND_H
+#ifndef DETAIL_SIMD_SSE_BACKEND_H
+#define DETAIL_SIMD_SSE_BACKEND_H
 
-#include "simd_data_types.h"
+#include "detail/simd_data_types.h"
 #include <cstddef>
 #include <cstdint>
 #include <nmmintrin.h> // only include SSE4.2
@@ -99,4 +99,4 @@ template <> struct is_simd_mask<simd_mask<float, detail::sse>> : std::integral_c
 
 } // namespace parallelism_v2
 
-#endif // SIMD_SSE_BACKEND_H
+#endif // DETAIL_SIMD_SSE_BACKEND_H

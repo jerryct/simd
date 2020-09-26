@@ -22,10 +22,10 @@ add_compile_options(
 add_subdirectory(/usr/src/googletest _build/googletest)
 
 add_library(simd INTERFACE)
-target_include_directories(simd INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(simd INTERFACE include/)
 
 add_executable(unit_tests
-  simd_mask_unit_test.cpp
-  simd_unit_test.cpp
+  test/simd_mask_unit_test.cpp
+  test/simd_unit_test.cpp
 )
-target_link_libraries(unit_tests INTERFACE simd PRIVATE gtest_main)
+target_link_libraries(unit_tests PRIVATE simd PRIVATE gtest_main)

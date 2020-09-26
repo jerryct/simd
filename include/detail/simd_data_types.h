@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef SIMD_DATA_TYPES_H
-#define SIMD_DATA_TYPES_H
+#ifndef DETAIL_SIMD_DATA_TYPES_H
+#define DETAIL_SIMD_DATA_TYPES_H
 
 #include <cstddef>
 #include <type_traits>
@@ -324,4 +324,4 @@ simd<T, Abi> clamp(const simd<T, Abi> &v, const simd<T, Abi> &low, const simd<T,
 
 } // namespace parallelism_v2
 
-#endif // SIMD_DATA_TYPES_H
+#endif // DETAIL_SIMD_DATA_TYPES_H

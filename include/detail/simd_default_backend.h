@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-#ifndef SIMD_DEFAULT_BACKEND_H
-#define SIMD_DEFAULT_BACKEND_H
+#ifndef DETAIL_SIMD_DEFAULT_BACKEND_H
+#define DETAIL_SIMD_DEFAULT_BACKEND_H
 
-#include "simd_data_types.h"
+#include "detail/simd_data_types.h"
 #include <cstddef>
 
 namespace parallelism_v2 {
@@ -228,4 +228,4 @@ struct is_simd_mask<simd_mask<float, detail::simd_default_backend<4U>>> : std::i
 
 } // namespace parallelism_v2
 
-#endif // SIMD_DEFAULT_BACKEND_H
+#endif // DETAIL_SIMD_DEFAULT_BACKEND_H

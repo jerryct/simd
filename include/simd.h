@@ -4,9 +4,9 @@
 #define SIMD_H
 
 #if defined(__SSE4_2__) && defined(__linux__)
-#include "simd_sse_backend.h"
+#include "detail/simd_sse_backend.h"
 #else
-#include "simd_default_backend.h"
+#include "detail/simd_default_backend.h"
 #endif
 
 namespace parallelism_v2 {
