@@ -21,12 +21,6 @@ static_assert(std::is_trivially_copy_assignable<simd<float>>::value, "Not trivia
 static_assert(std::is_trivially_move_assignable<simd<float>>::value, "Not trivially move assignable.");
 static_assert(std::is_trivially_destructible<simd<float>>::value, "Not trivially destructable.");
 
-unsigned from_float(float v) {
-  unsigned to;
-  std::memcpy(&to, &v, 4);
-  return to;
-}
-
 TEST(simd, Size) {
   EXPECT_EQ(16U, (memory_alignment_v<simd<float>>));
   EXPECT_EQ(4U, (simd<float>::size()));
@@ -51,25 +45,32 @@ TEST(simd, Initialize) {
 }
 
 TEST(simd, LoadUnaligned) {
-  fixed_size_simd<float, 4> vector{};
-  const std::array<float, 4U> a{1.0F, 2.0F, 3.0F, 4.0F};
-  vector.copy_from(a.data(), element_aligned);
+  fixed_size_simd<float, 4> vector;
+  const std::array<float, 4U> scalars{1.0F, 2.0F, 3.0F, 4.0F};
+  vector.copy_from(scalars.data(), element_aligned);
 
-  EXPECT_EQ(1.0F, a[0U]);
-  EXPECT_EQ(2.0F, a[1U]);
-  EXPECT_EQ(3.0F, a[2U]);
-  EXPECT_EQ(4.0F, a[3U]);
+  EXPECT_EQ(1.0F, scalars[0U]);
+  EXPECT_EQ(2.0F, scalars[1U]);
+  EXPECT_EQ(3.0F, scalars[2U]);
+  EXPECT_EQ(4.0F, scalars[3U]);
 }
 
 TEST(simd, LoadAligned) {
-  fixed_size_simd<float, 4> vector{};
-  alignas(16) const std::array<float, 4U> a{1.0F, 2.0F, 3.0F, 4.0F};
-  vector.copy_from(a.data(), vector_aligned);
+  fixed_size_simd<float, 4> vector;
+  alignas(16) const std::array<float, 4U> scalars{1.0F, 2.0F, 3.0F, 4.0F};
+  vector.copy_from(scalars.data(), vector_aligned);
 
-  EXPECT_EQ(1.0F, a[0U]);
-  EXPECT_EQ(2.0F, a[1U]);
-  EXPECT_EQ(3.0F, a[2U]);
-  EXPECT_EQ(4.0F, a[3U]);
+  EXPECT_EQ(1.0F, scalars[0U]);
+  EXPECT_EQ(2.0F, scalars[1U]);
+  EXPECT_EQ(3.0F, scalars[2U]);
+  EXPECT_EQ(4.0F, scalars[3U]);
+}
+
+TEST(simd, LoadAligned_WhenCopyingFromUnalignedMemory_ThenPreconditionViolated) {
+  fixed_size_simd<float, 4> vector;
+  alignas(16) const std::array<float, 5U> scalars{};
+
+  EXPECT_THROW(vector.copy_from(&scalars[1], vector_aligned), parallelism_v2::detail::condition_violated);
 }
 
 TEST(simd, StoreUnaligned) {
@@ -92,6 +93,19 @@ TEST(simd, StoreAligned) {
   EXPECT_EQ(2.0F, std::get<1U>(scalars));
   EXPECT_EQ(3.0F, std::get<2U>(scalars));
   EXPECT_EQ(4.0F, std::get<3U>(scalars));
+}
+
+TEST(simd, StoreAligned_WhenCopyingToUnalignedMemory_ThenPreconditionViolated) {
+  const fixed_size_simd<float, 4> vector{23.0F};
+  alignas(16) std::array<float, 5U> scalars;
+
+  EXPECT_THROW(vector.copy_to(&scalars[1], vector_aligned), parallelism_v2::detail::condition_violated);
+}
+
+TEST(simd, Access_WhenOutOfBounds_ThenPreconditionViolated) {
+  const simd<float> a{23.0F};
+
+  EXPECT_THROW(a[4U], parallelism_v2::detail::condition_violated);
 }
 
 TEST(simd, Add) {
@@ -202,12 +216,12 @@ TEST(simd, Negate) {
   const std::uint32_t neg_inf_bits{0xFF800000};
   const std::uint32_t null_bits{0x00000000};
   const std::uint32_t neg_null_bits{0x80000000};
-  EXPECT_EQ(nan_bits, from_float(nan[0]));
-  EXPECT_EQ(neg_nan_bits, from_float((-nan)[0]));
-  EXPECT_EQ(inf_bits, from_float(inf[0]));
-  EXPECT_EQ(neg_inf_bits, from_float((-inf)[0]));
-  EXPECT_EQ(null_bits, from_float(zero[0]));
-  EXPECT_EQ(neg_null_bits, from_float((-zero)[0]));
+  EXPECT_EQ(nan_bits, detail::bit_cast<std::uint32_t>(nan[0]));
+  EXPECT_EQ(neg_nan_bits, detail::bit_cast<std::uint32_t>((-nan)[0]));
+  EXPECT_EQ(inf_bits, detail::bit_cast<std::uint32_t>(inf[0]));
+  EXPECT_EQ(neg_inf_bits, detail::bit_cast<std::uint32_t>((-inf)[0]));
+  EXPECT_EQ(null_bits, detail::bit_cast<std::uint32_t>(zero[0]));
+  EXPECT_EQ(neg_null_bits, detail::bit_cast<std::uint32_t>((-zero)[0]));
 }
 
 TEST(simd, Equal) {
@@ -354,6 +368,14 @@ TEST(simd, Clamp) {
   EXPECT_TRUE(all_of(simd<float>{0.0F} == clamp(simd<float>{0.0F}, low, high)));
   EXPECT_TRUE(all_of(low == clamp(simd<float>{-2.0F}, low, high)));
   EXPECT_TRUE(all_of(high == clamp(simd<float>{2.0F}, low, high)));
+}
+
+TEST(simd, Clamp_WhenNoValidBoundaryInterval_ThenPreconditionViolated) {
+  const simd<float> one{1.0F};
+  const simd<float> low{-1.0F};
+  const simd<float> high{1.0F};
+
+  EXPECT_THROW(clamp(one, high, low), parallelism_v2::detail::condition_violated);
 }
 
 } // namespace

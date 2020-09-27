@@ -3,7 +3,9 @@
 #ifndef DETAIL_SIMD_DATA_TYPES_H
 #define DETAIL_SIMD_DATA_TYPES_H
 
+#include "detail/utilities.h"
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace parallelism_v2 {
@@ -84,8 +86,11 @@ public:
 
   /// @brief The value of the ith element.
   ///
-  /// @pre i < N
-  value_type operator[](const std::size_t i) const { return Abi::template mask_impl<T>::extract(v_, i); }
+  /// @pre i < size()
+  value_type operator[](const std::size_t i) const {
+    ENSURES(i < size());
+    return Abi::template mask_impl<T>::extract(v_, i);
+  }
 
   /// @brief Applies logical not to each element.
   simd_mask operator!() const noexcept { return simd_mask{Abi::template mask_impl<T>::logical_not(v_)}; }
@@ -170,6 +175,7 @@ public:
   /// @pre v shall point to storage aligned by parallelism_v2::memory_alignment_v<simd>.
   void copy_from(const value_type *const v, vector_aligned_tag) {
     static_assert(is_simd_flag_type_v<vector_aligned_tag>, "not a simd flag type tag");
+    ENSURES(::parallelism_v2::detail::bit_cast<std::uintptr_t>(v) % memory_alignment_v<simd> == 0U);
     v_ = Abi::template impl<T>::load_aligned(v);
   }
 
@@ -188,6 +194,7 @@ public:
   /// @pre v shall point to storage aligned by parallelism_v2::memory_alignment_v<simd>.
   void copy_to(value_type *const v, vector_aligned_tag) const {
     static_assert(is_simd_flag_type_v<vector_aligned_tag>, "not a simd flag type tag");
+    ENSURES(::parallelism_v2::detail::bit_cast<std::uintptr_t>(v) % memory_alignment_v<simd> == 0U);
     Abi::template impl<T>::store_aligned(v, v_);
   }
 
@@ -202,8 +209,11 @@ public:
 
   /// @brief The value of the ith element.
   ///
-  /// @pre i < N
-  value_type operator[](const std::size_t i) const { return Abi::template impl<T>::extract(v_, i); }
+  /// @pre i < size()
+  value_type operator[](const std::size_t i) const {
+    ENSURES(i < size());
+    return Abi::template impl<T>::extract(v_, i);
+  }
 
   /// @brief Same as -1 * *this.
   simd operator-() const noexcept { return simd{Abi::template impl<T>::negate(v_)}; }
@@ -319,6 +329,7 @@ template <typename T, typename Abi> simd<T, Abi> max(const simd<T, Abi> &a, cons
 /// @pre low <= high
 template <typename T, typename Abi>
 simd<T, Abi> clamp(const simd<T, Abi> &v, const simd<T, Abi> &low, const simd<T, Abi> &high) {
+  ENSURES(all_of(low < high));
   return ::parallelism_v2::min(::parallelism_v2::max(v, low), high);
 }
 

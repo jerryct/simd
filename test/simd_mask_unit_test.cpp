@@ -47,6 +47,12 @@ TEST(simd_mask, Initialize) {
   }
 }
 
+TEST(simd_mask, Access_WhenOutOfBounds_ThenPreconditionViolated) {
+  const simd_mask<float> a{false};
+
+  EXPECT_THROW(a[4U], parallelism_v2::detail::condition_violated);
+}
+
 TEST(simd_mask, Not) {
   {
     const simd_mask<float> a{true};
