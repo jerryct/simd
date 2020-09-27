@@ -342,8 +342,8 @@ TEST(simd, Min) {
 
   EXPECT_TRUE(all_of(one == min(one, simd<float>{2.0F})));
   EXPECT_TRUE(all_of(-inf == min(one, -inf)));
-  EXPECT_TRUE(all_nan(min(one, nan)));
-  EXPECT_TRUE(all_of(one == min(nan, one)));
+  EXPECT_TRUE(all_of(one == min(one, nan)));
+  EXPECT_TRUE(all_nan(min(nan, one)));
 }
 
 TEST(simd, Max) {
@@ -353,8 +353,8 @@ TEST(simd, Max) {
 
   EXPECT_TRUE(all_of(two == max(two, simd<float>{1.0F})));
   EXPECT_TRUE(all_of(inf == max(two, inf)));
-  EXPECT_TRUE(all_nan(max(two, nan)));
-  EXPECT_TRUE(all_of(two == max(nan, two)));
+  EXPECT_TRUE(all_of(two == max(two, nan)));
+  EXPECT_TRUE(all_nan(max(nan, two)));
 }
 
 TEST(simd, Clamp) {

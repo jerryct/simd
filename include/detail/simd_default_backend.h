@@ -4,6 +4,7 @@
 #define DETAIL_SIMD_DEFAULT_BACKEND_H
 
 #include "detail/simd_data_types.h"
+#include <algorithm>
 #include <cstddef>
 
 namespace parallelism_v2 {
@@ -192,7 +193,7 @@ template <typename T, int N> struct simd_default_impl {
   static simd_vector<T, N> min(const simd_vector<T, N> &a, const simd_vector<T, N> &b) noexcept {
     simd_vector<T, N> r;
     for (int i = 0; i < N; ++i) {
-      r.v[i] = (a.v[i] < b.v[i]) ? a.v[i] : b.v[i];
+      r.v[i] = std::min(a.v[i], b.v[i]);
     }
     return r;
   }
@@ -200,7 +201,7 @@ template <typename T, int N> struct simd_default_impl {
   static simd_vector<T, N> max(const simd_vector<T, N> &a, const simd_vector<T, N> &b) noexcept {
     simd_vector<T, N> r;
     for (int i = 0; i < N; ++i) {
-      r.v[i] = (b.v[i] < a.v[i]) ? a.v[i] : b.v[i];
+      r.v[i] = std::max(a.v[i], b.v[i]);
     }
     return r;
   }

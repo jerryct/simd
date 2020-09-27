@@ -302,16 +302,16 @@ simd_mask<T, Abi> operator>=(const simd<T, Abi> &lhs, const simd<T, Abi> &rhs) n
   return simd_mask<T, Abi>{Abi::template impl<T>::greater_equal(static_cast<type>(lhs), static_cast<type>(rhs))};
 }
 
-/// @brief Returns the smaller of lhs and rhs. Returns rhs if one operand is NaN.
-template <typename T, typename Abi> simd<T, Abi> min(const simd<T, Abi> &lhs, const simd<T, Abi> &rhs) noexcept {
+/// @brief Returns the smaller of a and b. Returns a if one operand is NaN.
+template <typename T, typename Abi> simd<T, Abi> min(const simd<T, Abi> &a, const simd<T, Abi> &b) noexcept {
   using type = typename simd<T, Abi>::_storage_type;
-  return simd<T, Abi>{Abi::template impl<T>::min(static_cast<type>(lhs), static_cast<type>(rhs))};
+  return simd<T, Abi>{Abi::template impl<T>::min(static_cast<type>(a), static_cast<type>(b))};
 }
 
-/// @brief Returns the greater of lhs and rhs. Returns rhs if one operand is NaN.
-template <typename T, typename Abi> simd<T, Abi> max(const simd<T, Abi> &lhs, const simd<T, Abi> &rhs) noexcept {
+/// @brief Returns the greater of a and b. Returns a if one operand is NaN.
+template <typename T, typename Abi> simd<T, Abi> max(const simd<T, Abi> &a, const simd<T, Abi> &b) noexcept {
   using type = typename simd<T, Abi>::_storage_type;
-  return simd<T, Abi>{Abi::template impl<T>::max(static_cast<type>(lhs), static_cast<type>(rhs))};
+  return simd<T, Abi>{Abi::template impl<T>::max(static_cast<type>(a), static_cast<type>(b))};
 }
 
 /// @brief Returns low if v is less than low, high if high is less than v, otherwise v.
