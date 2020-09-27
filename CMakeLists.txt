@@ -6,6 +6,9 @@ add_compile_options(
   -fno-omit-frame-pointer
   -msse4.2
   -std=c++14
+  $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
+  $<$<AND:$<CXX_COMPILER_ID:Clang>,$<CONFIG:Debug>>:-fprofile-instr-generate>
+  $<$<AND:$<CXX_COMPILER_ID:Clang>,$<CONFIG:Debug>>:-fcoverage-mapping>
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:Clang>>:-fno-vectorize>
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:Clang>>:-fno-slp-vectorize>
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:Clang>>:-Rpass-missed=loop-vectorize>
@@ -17,6 +20,12 @@ add_compile_options(
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:GNU>>:-fdump-tree-vect>
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:GNU>>:-fopt-info-vec-missed>
   #$<$<AND:$<STREQUAL:$<COMPILE_LANGUAGE>,CXX>,$<CXX_COMPILER_ID:GNU>>:-fopt-info-vec-note>
+)
+
+link_libraries(
+  $<$<CONFIG:Debug>:-fsanitize=address,undefined,leak>
+  $<$<AND:$<CXX_COMPILER_ID:Clang>,$<CONFIG:Debug>>:-fprofile-instr-generate>
+  $<$<AND:$<CXX_COMPILER_ID:Clang>,$<CONFIG:Debug>>:-fcoverage-mapping>
 )
 
 add_subdirectory(/usr/src/googletest _build/googletest)
