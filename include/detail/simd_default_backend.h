@@ -5,7 +5,9 @@
 
 #include "detail/simd_data_types.h"
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
+#include <type_traits>
 
 namespace parallelism_v2 {
 namespace detail {
@@ -202,6 +204,15 @@ template <typename T, int N> struct simd_default_impl {
     simd_vector<T, N> r;
     for (int i = 0; i < N; ++i) {
       r.v[i] = std::max(a.v[i], b.v[i]);
+    }
+    return r;
+  }
+
+  static simd_vector<bool, N> is_nan(const simd_vector<T, N> &v) noexcept {
+    static_assert(std::is_floating_point<T>::value, "not a floating point type");
+    simd_vector<bool, N> r;
+    for (int i = 0; i < N; ++i) {
+      r.v[i] = std::isnan(v.v[i]);
     }
     return r;
   }

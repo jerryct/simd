@@ -2,10 +2,10 @@
 
 #include "simd.h"
 #include <array>
-#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <gtest/gtest.h>
+#include <limits>
 #include <type_traits>
 
 namespace parallelism_v2 {
@@ -20,17 +20,6 @@ static_assert(std::is_trivially_move_constructible<simd<float>>::value, "Not tri
 static_assert(std::is_trivially_copy_assignable<simd<float>>::value, "Not trivially copy assignable.");
 static_assert(std::is_trivially_move_assignable<simd<float>>::value, "Not trivially move assignable.");
 static_assert(std::is_trivially_destructible<simd<float>>::value, "Not trivially destructable.");
-
-bool all_nan(const fixed_size_simd<float, 4> v) {
-  std::array<float, 4U> scalars;
-  v.copy_to(scalars.data(), element_aligned);
-
-  for (float s : scalars) {
-    if (!std::isnan(s))
-      return false;
-  }
-  return true;
-}
 
 unsigned from_float(float v) {
   unsigned to;
@@ -112,13 +101,13 @@ TEST(simd, Add) {
 
   EXPECT_TRUE(all_of(simd<float>{2.0F} == one + one));
   EXPECT_TRUE(all_of(inf == one + inf));
-  EXPECT_TRUE(all_nan(one + nan));
+  EXPECT_TRUE(all_of(is_nan(one + nan)));
 
   EXPECT_TRUE(all_of(inf == inf + inf));
   EXPECT_TRUE(all_of(-inf == -inf + -inf));
 
-  EXPECT_TRUE(all_nan(inf + -inf));
-  EXPECT_TRUE(all_nan(-inf + inf));
+  EXPECT_TRUE(all_of(is_nan(inf + -inf)));
+  EXPECT_TRUE(all_of(is_nan(-inf + inf)));
 }
 
 TEST(simd, AssignmentAdd) {
@@ -134,13 +123,13 @@ TEST(simd, Subtract) {
 
   EXPECT_TRUE(all_of(simd<float>{0.0F} == one - one));
   EXPECT_TRUE(all_of(-inf == one - inf));
-  EXPECT_TRUE(all_nan(one - nan));
+  EXPECT_TRUE(all_of(is_nan(one - nan)));
 
   EXPECT_TRUE(all_of(-inf == -inf - inf));
   EXPECT_TRUE(all_of(inf == inf - -inf));
 
-  EXPECT_TRUE(all_nan(inf - inf));
-  EXPECT_TRUE(all_nan(-inf - -inf));
+  EXPECT_TRUE(all_of(is_nan(inf - inf)));
+  EXPECT_TRUE(all_of(is_nan(-inf - -inf)));
 }
 
 TEST(simd, AssignmentSubtract) {
@@ -157,16 +146,16 @@ TEST(simd, Multiply) {
 
   EXPECT_TRUE(all_of(simd<float>{4.0F} == two * two));
   EXPECT_TRUE(all_of(inf == two * inf));
-  EXPECT_TRUE(all_nan(two * nan));
+  EXPECT_TRUE(all_of(is_nan(two * nan)));
 
-  EXPECT_TRUE(all_nan(zero * inf));
-  EXPECT_TRUE(all_nan(-zero * inf));
-  EXPECT_TRUE(all_nan(zero * -inf));
-  EXPECT_TRUE(all_nan(-zero * -inf));
-  EXPECT_TRUE(all_nan(inf * zero));
-  EXPECT_TRUE(all_nan(-inf * zero));
-  EXPECT_TRUE(all_nan(inf * -zero));
-  EXPECT_TRUE(all_nan(-inf * -zero));
+  EXPECT_TRUE(all_of(is_nan(zero * inf)));
+  EXPECT_TRUE(all_of(is_nan(-zero * inf)));
+  EXPECT_TRUE(all_of(is_nan(zero * -inf)));
+  EXPECT_TRUE(all_of(is_nan(-zero * -inf)));
+  EXPECT_TRUE(all_of(is_nan(inf * zero)));
+  EXPECT_TRUE(all_of(is_nan(-inf * zero)));
+  EXPECT_TRUE(all_of(is_nan(inf * -zero)));
+  EXPECT_TRUE(all_of(is_nan(-inf * -zero)));
 }
 
 TEST(simd, AssignmentMultiply) {
@@ -184,16 +173,16 @@ TEST(simd, Divide) {
   EXPECT_TRUE(all_of(simd<float>{1.0F} == two / two));
   EXPECT_TRUE(all_of(zero == two / inf));
   EXPECT_TRUE(all_of(inf == two / zero));
-  EXPECT_TRUE(all_nan(two / nan));
+  EXPECT_TRUE(all_of(is_nan(two / nan)));
 
-  EXPECT_TRUE(all_nan(zero / zero));
-  EXPECT_TRUE(all_nan(-zero / zero));
-  EXPECT_TRUE(all_nan(zero / -zero));
-  EXPECT_TRUE(all_nan(-zero / -zero));
-  EXPECT_TRUE(all_nan(inf / inf));
-  EXPECT_TRUE(all_nan(-inf / inf));
-  EXPECT_TRUE(all_nan(inf / -inf));
-  EXPECT_TRUE(all_nan(-inf / -inf));
+  EXPECT_TRUE(all_of(is_nan(zero / zero)));
+  EXPECT_TRUE(all_of(is_nan(-zero / zero)));
+  EXPECT_TRUE(all_of(is_nan(zero / -zero)));
+  EXPECT_TRUE(all_of(is_nan(-zero / -zero)));
+  EXPECT_TRUE(all_of(is_nan(inf / inf)));
+  EXPECT_TRUE(all_of(is_nan(-inf / inf)));
+  EXPECT_TRUE(all_of(is_nan(inf / -inf)));
+  EXPECT_TRUE(all_of(is_nan(-inf / -inf)));
 }
 
 TEST(simd, AssignmentDivide) {
@@ -343,7 +332,7 @@ TEST(simd, Min) {
   EXPECT_TRUE(all_of(one == min(one, simd<float>{2.0F})));
   EXPECT_TRUE(all_of(-inf == min(one, -inf)));
   EXPECT_TRUE(all_of(one == min(one, nan)));
-  EXPECT_TRUE(all_nan(min(nan, one)));
+  EXPECT_TRUE(all_of(is_nan(min(nan, one))));
 }
 
 TEST(simd, Max) {
@@ -354,7 +343,7 @@ TEST(simd, Max) {
   EXPECT_TRUE(all_of(two == max(two, simd<float>{1.0F})));
   EXPECT_TRUE(all_of(inf == max(two, inf)));
   EXPECT_TRUE(all_of(two == max(two, nan)));
-  EXPECT_TRUE(all_nan(max(nan, two)));
+  EXPECT_TRUE(all_of(is_nan(max(nan, two))));
 }
 
 TEST(simd, Clamp) {

@@ -8,6 +8,7 @@
 #else
 #include "detail/simd_default_backend.h"
 #endif
+#include <detail/simd_math.h>
 
 namespace parallelism_v2 {
 template <typename T, typename Abi = simd_abi::compatible<T>> class simd;

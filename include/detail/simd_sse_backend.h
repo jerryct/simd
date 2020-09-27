@@ -69,6 +69,8 @@ template <> struct sse_intrinsics<float> {
 
   static __m128 min(const __m128 a, const __m128 b) noexcept { return _mm_min_ps(b, a); }
   static __m128 max(const __m128 a, const __m128 b) noexcept { return _mm_max_ps(b, a); }
+
+  static __m128 is_nan(const __m128 v) noexcept { return _mm_cmpunord_ps(v, v); }
 };
 
 template <typename T> struct sse_type;
