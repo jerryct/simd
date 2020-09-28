@@ -329,7 +329,7 @@ template <typename T, typename Abi> simd<T, Abi> max(const simd<T, Abi> &a, cons
 /// @pre low <= high
 template <typename T, typename Abi>
 simd<T, Abi> clamp(const simd<T, Abi> &v, const simd<T, Abi> &low, const simd<T, Abi> &high) {
-  ENSURES(all_of(low < high));
+  ENSURES(all_of(low <= high));
   return ::parallelism_v2::min(::parallelism_v2::max(v, low), high);
 }
 
