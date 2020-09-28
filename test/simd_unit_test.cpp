@@ -103,7 +103,7 @@ TEST(simd, StoreAligned_WhenCopyingToUnalignedMemory_ThenPreconditionViolated) {
 }
 
 TEST(simd, Access_WhenOutOfBounds_ThenPreconditionViolated) {
-  const simd<float> a{23.0F};
+  const fixed_size_simd<float, 4> a{23.0F};
 
   EXPECT_THROW(a[4U], parallelism_v2::detail::condition_violated);
 }
