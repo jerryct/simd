@@ -216,6 +216,15 @@ template <typename T, int N> struct simd_default_impl {
     }
     return r;
   }
+
+  static simd_vector<T, N> blend(const simd_vector<T, N> &a, const simd_vector<T, N> &b,
+                                 const simd_vector<bool, N> &c) noexcept {
+    simd_vector<T, N> r;
+    for (int i = 0; i < N; ++i) {
+      r.v[i] = c.v[i] ? b.v[i] : a.v[i];
+    }
+    return r;
+  }
 };
 
 template <int N> struct simd_default_backend {

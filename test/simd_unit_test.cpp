@@ -378,5 +378,50 @@ TEST(simd, Clamp_WhenNoValidBoundaryInterval_ThenPreconditionViolated) {
   EXPECT_THROW(clamp(one, high, low), parallelism_v2::detail::condition_violated);
 }
 
+TEST(simd, WhereAssignment) {
+  fixed_size_simd<float, 4> value{6.0F, 9.0F, 16.0F, 25.0F};
+  const fixed_size_simd_mask<float, 4> mask{true, false, true, false};
+
+  where(mask, value) = fixed_size_simd<float, 4>{2.0F, 3.0F, 4.0F, 5.0F};
+
+  EXPECT_TRUE(all_of(fixed_size_simd<float, 4>{2.0F, 9.0F, 4.0F, 25.0F} == value));
+}
+
+TEST(simd, WhereAssignmentAdd) {
+  fixed_size_simd<float, 4> value{6.0F, 9.0F, 16.0F, 25.0F};
+  const fixed_size_simd_mask<float, 4> mask{true, false, true, false};
+
+  where(mask, value) += fixed_size_simd<float, 4>{2.0F, 3.0F, 4.0F, 5.0F};
+
+  EXPECT_TRUE(all_of(fixed_size_simd<float, 4>{8.0F, 9.0F, 20.0F, 25.0F} == value));
+}
+
+TEST(simd, WhereAssignmentSubtract) {
+  fixed_size_simd<float, 4> value{6.0F, 9.0F, 16.0F, 25.0F};
+  const fixed_size_simd_mask<float, 4> mask{true, false, true, false};
+
+  where(mask, value) -= fixed_size_simd<float, 4>{2.0F, 3.0F, 4.0F, 5.0F};
+
+  EXPECT_TRUE(all_of(fixed_size_simd<float, 4>{4.0F, 9.0F, 12.0F, 25.0F} == value));
+}
+
+TEST(simd, WhereAssignmentMultiply) {
+  fixed_size_simd<float, 4> value{6.0F, 9.0F, 16.0F, 25.0F};
+  const fixed_size_simd_mask<float, 4> mask{true, false, true, false};
+
+  where(mask, value) *= fixed_size_simd<float, 4>{2.0F, 3.0F, 4.0F, 5.0F};
+
+  EXPECT_TRUE(all_of(fixed_size_simd<float, 4>{12.0F, 9.0F, 64.0F, 25.0F} == value));
+}
+
+TEST(simd, WhereAssignmentDivide) {
+  fixed_size_simd<float, 4> value{6.0F, 9.0F, 16.0F, 25.0F};
+  const fixed_size_simd_mask<float, 4> mask{true, false, true, false};
+
+  where(mask, value) /= fixed_size_simd<float, 4>{2.0F, 3.0F, 4.0F, 5.0F};
+
+  EXPECT_TRUE(all_of(fixed_size_simd<float, 4>{3.0F, 9.0F, 4.0F, 25.0F} == value));
+}
+
 } // namespace
 } // namespace parallelism_v2

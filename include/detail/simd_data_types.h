@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 
 namespace parallelism_v2 {
 
@@ -331,6 +332,68 @@ template <typename T, typename Abi>
 simd<T, Abi> clamp(const simd<T, Abi> &v, const simd<T, Abi> &low, const simd<T, Abi> &high) {
   ENSURES(all_of(low <= high));
   return ::parallelism_v2::min(::parallelism_v2::max(v, low), high);
+}
+
+/// @brief The class abstracts the notion of selecting elements of a given object of a data-parallel type.
+template <typename M, typename T> class where_expression {
+  static_assert(is_simd_mask_v<M>, "not a mask type");
+  static_assert(is_simd_v<T>, "not a data-parallel type");
+  static_assert(std::is_same<T, typename M::simd_type>::value, "incompatible mask and data-parallel type");
+
+  using type = typename T::_storage_type;
+  using mask_type = typename M::_storage_type;
+  using impl = typename T::abi_type::template impl<typename T::value_type>;
+
+public:
+  /// @brief Do not call directly. Instead use `where()` function.
+  where_expression(const M &mask, T &value) : m_{mask}, v_{value} {}
+  where_expression(const where_expression &) = delete;
+  where_expression &operator=(const where_expression &) = delete;
+
+  /// @brief Replace the elements of value with the elements of x for elements where mask is true.
+  template <typename U> void operator=(U &&x) && noexcept {
+    static_assert(std::is_same<const T, const std::remove_reference_t<U>>::value, "no known conversion");
+    v_ = T{impl::blend(static_cast<type>(v_), static_cast<type>(std::forward<U>(x)), static_cast<mask_type>(m_))};
+  }
+
+  /// @brief Replace the elements of value with the elements of value + x for elements where mask is true.
+  template <typename U> void operator+=(U &&x) && noexcept {
+    static_assert(std::is_same<const T, const std::remove_reference_t<U>>::value, "no known conversion");
+    v_ = T{impl::blend(static_cast<type>(v_), static_cast<type>(v_ + std::forward<U>(x)), static_cast<mask_type>(m_))};
+  }
+
+  /// @brief Replace the elements of value with the elements of value - x for elements where mask is true.
+  template <typename U> void operator-=(U &&x) && noexcept {
+    static_assert(std::is_same<const T, const std::remove_reference_t<U>>::value, "no known conversion");
+    v_ = T{impl::blend(static_cast<type>(v_), static_cast<type>(v_ - std::forward<U>(x)), static_cast<mask_type>(m_))};
+  }
+
+  /// @brief Replace the elements of value with the elements of value * x for elements where mask is true.
+  template <typename U> void operator*=(U &&x) && noexcept {
+    static_assert(std::is_same<const T, const std::remove_reference_t<U>>::value, "no known conversion");
+    v_ = T{impl::blend(static_cast<type>(v_), static_cast<type>(v_ * std::forward<U>(x)), static_cast<mask_type>(m_))};
+  }
+
+  /// @brief Replace the elements of value with the elements of value / x for elements where mask is true.
+  template <typename U> void operator/=(U &&x) && noexcept {
+    static_assert(std::is_same<const T, const std::remove_reference_t<U>>::value, "no known conversion");
+    v_ = T{impl::blend(static_cast<type>(v_), static_cast<type>(v_ / std::forward<U>(x)), static_cast<mask_type>(m_))};
+  }
+
+private:
+  const M m_;
+  T &v_;
+};
+
+/// @brief Select elements of v where the corresponding elements of m are true.
+///
+/// Usage: `where(mask, value) @ other;`.
+///
+/// Where `@` denotes one of the operators of `where_expression<>`.
+template <typename T, typename Abi>
+where_expression<simd_mask<T, Abi>, simd<T, Abi>> where(const typename simd<T, Abi>::mask_type &m,
+                                                        simd<T, Abi> &v) noexcept {
+  return {m, v};
 }
 
 } // namespace parallelism_v2
